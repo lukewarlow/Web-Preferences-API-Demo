@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html style="overflow: scroll">
+
+  <head>
+    <meta name="viewport" content="width=device-widh, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>navigator.preferences</title>
+  </head>
+
+  <body>
+    <p>prefers-color-scheme: <span id="colorScheme"></span></p>
+    <p>prefers-contrast: <span id="contrast"></span></p>
+    <p>prefers-reduced-motion: <span id="reducedMotion"></span></p>
+    <p>prefers-reduced-transparency: <span id="reducedTransparency"></span></p>
+    <p>prefers-reduced-data: <span id="reducedData"></span></p>
+    <img src="https://demo.lukewarlow.dev/web-preferences-api/example.svg">
+    <img src="https://altdemo.lukewarlow.dev/web-preferences-api/example.svg">
+    <img src="https://demo.warlow.dev/web-preferences-api/example.svg">
+
+    <style>
+      @media(prefers-contrast:more) {
+        :root {
+          accent-color: CanvasText;
+        }
+      }
+
+      @media (prefers-contrast: less) {
+        :root {
+          accent-color: Canvas;
+        }
+      }
+
+      img {
+        display: block;
+        width: 64px;
+        height: 64px;
+      }
+
+      iframe {
+        height: 500px;
+        width: 50%;
+      }
+
+      fencedframe {
+        display: block;
+        height: 500px;
+        width: 50%;
+      }
+
+      iframe[sandbox] {
+        border-color: red;
+      }
+
+    </style>
+    <script>
+      if ('preferences' in navigator) {
+        Object.keys(PreferenceManager.prototype).forEach(preference => {
+          const fieldset = document.createElement('fieldset');
+          const legend = document.createElement('legend');
+          legend.innerText = preference;
+          fieldset.appendChild(legend);
+          const autoLabel = document.createElement('label');
+          const autoInput = document.createElement('input');
+          fieldset.appendChild(autoLabel);
+          autoLabel.appendChild(autoInput);
+          autoLabel.appendChild(document.createTextNode('auto'));
+          autoInput.type = "radio";
+          autoInput.name = preference;
+          autoInput.value = "";
+          autoInput.checked = navigator.preferences[preference].override === null;
+          autoInput.onchange = (event) => {
+            if (autoInput.checked) {
+              navigator.preferences[preference].clearOverride();
+            }
+          };
+
+          navigator.preferences[preference].validValues.forEach(async (value) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = "radio";
+            input.name = preference;
+            input.value = value;
+            input.checked = navigator.preferences[preference] === value;
+            input.onchange = (event) => {
+              if (input.checked) {
+                navigator.preferences[preference].requestOverride(value);
+              }
+            };
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(value));
+            fieldset.appendChild(label);
+          });
+
+          document.body.appendChild(fieldset);
+        });
+      } else {
+        const unsupported = document.createElement('p');
+        unsupported.innerText = 'navigator.preferences unsupported';
+        document.body.appendChild(unsupported);
+      }
+      if (window.self === window.top && !window.fence) {
+        const sameOriginIframe = document.createElement('iframe');
+        //sameOriginIframe.credentialless = true;
+        sameOriginIframe.src = "https://demo.lukewarlow.dev/web-preferences-api/";
+        document.body.appendChild(sameOriginIframe);
+
+        const sameOriginIframeSandboxed = document.createElement('iframe');
+        sameOriginIframeSandboxed.src = "https://demo.lukewarlow.dev/web-preferences-api/";
+        sameOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+        document.body.appendChild(sameOriginIframeSandboxed);
+
+        const sameSiteIframe = document.createElement('iframe');
+        sameSiteIframe.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
+        document.body.appendChild(sameSiteIframe);
+
+        const sameSiteIframeSandboxed = document.createElement('iframe');
+        sameSiteIframeSandboxed.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
+        sameSiteIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+        document.body.appendChild(sameSiteIframeSandboxed);
+
+        const crossOriginIframe = document.createElement('iframe');
+        crossOriginIframe.src = "https://demo.warlow.dev/web-preferences-api/";
+        document.body.appendChild(crossOriginIframe);
+
+        const crossOriginIframeSandboxed = document.createElement('iframe');
+        crossOriginIframeSandboxed.src = "https://demo.warlow.dev/web-preferences-api/";
+        crossOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+        document.body.appendChild(crossOriginIframeSandboxed);
+
+        if (window.FencedFrameConfig && window.HTMLFencedFrameElement) {
+          try {
+            const frameConfig = new FencedFrameConfig("https://demo.warlow.dev/web-preferences-api/");
+            const fencedframe = document.createElement('fencedframe');
+            fencedframe.config = frameConfig;
+            document.body.appendChild(fencedframe);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      } else {
+        window.addEventListener('message', e => {
+          console.log(e);
+          console.log(window.location.origin);
+        });
+      }
+      const colorSchemeIsLight = window.matchMedia('(prefers-color-scheme: light)');
+      window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
+      colorSchemeIsLight.onchange = () => {
+        window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
+      };
+      const contrastIsBooleanTrue = window.matchMedia('(prefers-contrast)');
+      const contrastIsMore = window.matchMedia('(prefers-contrast: more)');
+      if (contrastIsBooleanTrue.matches) {
+        window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+      } else {
+        window.contrast.innerText = 'no-preference';
+      }
+      contrastIsBooleanTrue.onchange = () => {
+        if (contrastIsBooleanTrue.matches) {
+          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+        } else {
+          window.contrast.innerText = 'no-preference';
+        }
+      }
+      contrastIsMore.onchange = () => {
+        if (contrastIsBooleanTrue.matches) {
+          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+        } else {
+          window.contrast.innerText = 'no-preference';
+        }
+      }
+
+      const motionIsReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
+      motionIsReduce.onchange = () => {
+        window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
+      };
+      const transparencyIsReduce = window.matchMedia('(prefers-reduced-transparency: reduce)');
+      window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
+      transparencyIsReduce.onchange = () => {
+        window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
+      };
+      const dataIsReduce = window.matchMedia('(prefers-reduced-data: reduce)');
+      window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
+      dataIsReduce.onchange = () => {
+        window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
+      };
+
+    </script>
+  </body>
+
+</html>
