@@ -162,47 +162,25 @@
             console.log(window.location.origin);
           });
         }
-        const colorSchemeIsLight = window.matchMedia('(prefers-color-scheme: light)');
-        window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
-        colorSchemeIsLight.onchange = () => {
-          window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
+        window.colorScheme.innerText = navigator.preferences.colorScheme.value;
+        navigator.preferences.colorScheme.onchange = () => {
+          window.colorScheme.innerText = navigator.preferences.colorScheme.value;
         };
-        const contrastIsBooleanTrue = window.matchMedia('(prefers-contrast)');
-        const contrastIsMore = window.matchMedia('(prefers-contrast: more)');
-        if (contrastIsBooleanTrue.matches) {
-          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-        } else {
-          window.contrast.innerText = 'no-preference';
-        }
-        contrastIsBooleanTrue.onchange = () => {
-          if (contrastIsBooleanTrue.matches) {
-            window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-          } else {
-            window.contrast.innerText = 'no-preference';
-          }
-        }
-        contrastIsMore.onchange = () => {
-          if (contrastIsBooleanTrue.matches) {
-            window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-          } else {
-            window.contrast.innerText = 'no-preference';
-          }
-        }
-
-        const motionIsReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-        window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
-        motionIsReduce.onchange = () => {
-          window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
+        window.contrast.innerText = navigator.preferences.contrast.value;
+        navigator.preferences.contrast.onchange = () => {
+          window.contrast.innerText = navigator.preferences.contrast.value;
         };
-        const transparencyIsReduce = window.matchMedia('(prefers-reduced-transparency: reduce)');
-        window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
-        transparencyIsReduce.onchange = () => {
-          window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
+        window.reducedMotion.innerText = navigator.preferences.reducedMotion.value;
+        navigator.preferences.reducedMotion.onchange = () => {
+          window.reducedMotion.innerText = navigator.preferences.reducedMotion.value;
         };
-        const dataIsReduce = window.matchMedia('(prefers-reduced-data: reduce)');
-        window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
-        dataIsReduce.onchange = () => {
-          window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
+        window.reducedTransparency.innerText = navigator.preferences.reducedTransparency.value;
+        navigator.preferences.reducedTransparency.onchange = () => {
+          window.reducedTransparency.innerText = navigator.preferences.reducedTransparency.value;
+        };
+        window.reducedData.innerText = navigator.preferences.reducedData.value;
+        navigator.preferences.reducedData.onchange = () => {
+          window.reducedData.innerText = navigator.preferences.reducedData.value;
         };
 
       } else {
