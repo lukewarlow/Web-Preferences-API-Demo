@@ -2,7 +2,7 @@
 <html style="overflow: scroll">
 
   <head>
-    <meta name="viewport" content="width=device-widh, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>navigator.preferences</title>
   </head>
@@ -93,98 +93,123 @@
 
           document.body.appendChild(fieldset);
         });
+        if (window.self === window.top && !window.fence) {
+          const iframeDisclosure = document.createElement('details');
+          iframeDisclosure.innerHTML = '<summary>Frames (behaviour not decided yet)</summary>';
+          const sameOriginIframeLabel = document.createElement('p');
+          sameOriginIframeLabel.innerText = "Same-Origin iframe";
+          iframeDisclosure.appendChild(sameOriginIframeLabel);
+          const sameOriginIframe = document.createElement('iframe');
+          //sameOriginIframe.credentialless = true;
+          sameOriginIframe.src = "https://demo.lukewarlow.dev/web-preferences-api/";
+          iframeDisclosure.appendChild(sameOriginIframe);
+
+          const sameOriginSandboxedIframeLabel = document.createElement('p');
+          sameOriginSandboxedIframeLabel.innerText = "Same-Origin Sandboxed iframe";
+          iframeDisclosure.appendChild(sameOriginSandboxedIframeLabel);
+          const sameOriginIframeSandboxed = document.createElement('iframe');
+          sameOriginIframeSandboxed.src = "https://demo.lukewarlow.dev/web-preferences-api/";
+          sameOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+          iframeDisclosure.appendChild(sameOriginIframeSandboxed);
+
+          const sameSiteIframeLabel = document.createElement('p');
+          sameSiteIframeLabel.innerText = "Same-Site Cross-Origin iframe";
+          iframeDisclosure.appendChild(sameSiteIframeLabel);
+          const sameSiteIframe = document.createElement('iframe');
+          sameSiteIframe.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
+          iframeDisclosure.appendChild(sameSiteIframe);
+
+          const sameSiteSandboxedIframeLabel = document.createElement('p');
+          sameSiteSandboxedIframeLabel.innerText = "Same-Site Cross-Origin Sandboxed iframe";
+          iframeDisclosure.appendChild(sameSiteSandboxedIframeLabel);
+          const sameSiteIframeSandboxed = document.createElement('iframe');
+          sameSiteIframeSandboxed.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
+          sameSiteIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+          iframeDisclosure.appendChild(sameSiteIframeSandboxed);
+
+          const crossOriginIframeLabel = document.createElement('p');
+          crossOriginIframeLabel.innerText = "Cross-Origin iframe";
+          iframeDisclosure.appendChild(crossOriginIframeLabel);
+          const crossOriginIframe = document.createElement('iframe');
+          crossOriginIframe.src = "https://demo.warlow.dev/web-preferences-api/";
+          iframeDisclosure.appendChild(crossOriginIframe);
+
+          const crossOriginSandboxedIframeLabel = document.createElement('p');
+          crossOriginSandboxedIframeLabel.innerText = "Cross-Origin Sandboxed iframe";
+          const crossOriginIframeSandboxed = document.createElement('iframe');
+          crossOriginIframeSandboxed.src = "https://demo.warlow.dev/web-preferences-api/";
+          crossOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
+          iframeDisclosure.appendChild(crossOriginIframeSandboxed);
+
+          if (window.FencedFrameConfig && window.HTMLFencedFrameElement) {
+            try {
+              const fencedFrameLabel = document.createElement('p');
+              fencedFrameLabel.innerText = "Fenced Frame";
+              iframeDisclosure.appendChild(fencedFrameLabel);
+              const frameConfig = new FencedFrameConfig("https://demo.warlow.dev/web-preferences-api/");
+              const fencedframe = document.createElement('fencedframe');
+              fencedframe.config = frameConfig;
+              iframeDisclosure.appendChild(fencedframe);
+            } catch (e) {
+              console.warn(e);
+            }
+          }
+
+          document.body.appendChild(iframeDisclosure);
+        } else {
+          window.addEventListener('message', e => {
+            console.log(e);
+            console.log(window.location.origin);
+          });
+        }
+        const colorSchemeIsLight = window.matchMedia('(prefers-color-scheme: light)');
+        window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
+        colorSchemeIsLight.onchange = () => {
+          window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
+        };
+        const contrastIsBooleanTrue = window.matchMedia('(prefers-contrast)');
+        const contrastIsMore = window.matchMedia('(prefers-contrast: more)');
+        if (contrastIsBooleanTrue.matches) {
+          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+        } else {
+          window.contrast.innerText = 'no-preference';
+        }
+        contrastIsBooleanTrue.onchange = () => {
+          if (contrastIsBooleanTrue.matches) {
+            window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+          } else {
+            window.contrast.innerText = 'no-preference';
+          }
+        }
+        contrastIsMore.onchange = () => {
+          if (contrastIsBooleanTrue.matches) {
+            window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
+          } else {
+            window.contrast.innerText = 'no-preference';
+          }
+        }
+
+        const motionIsReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+        window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
+        motionIsReduce.onchange = () => {
+          window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
+        };
+        const transparencyIsReduce = window.matchMedia('(prefers-reduced-transparency: reduce)');
+        window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
+        transparencyIsReduce.onchange = () => {
+          window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
+        };
+        const dataIsReduce = window.matchMedia('(prefers-reduced-data: reduce)');
+        window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
+        dataIsReduce.onchange = () => {
+          window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
+        };
+
       } else {
         const unsupported = document.createElement('p');
         unsupported.innerText = 'navigator.preferences unsupported';
         document.body.appendChild(unsupported);
       }
-      if (window.self === window.top && !window.fence) {
-        const sameOriginIframe = document.createElement('iframe');
-        //sameOriginIframe.credentialless = true;
-        sameOriginIframe.src = "https://demo.lukewarlow.dev/web-preferences-api/";
-        document.body.appendChild(sameOriginIframe);
-
-        const sameOriginIframeSandboxed = document.createElement('iframe');
-        sameOriginIframeSandboxed.src = "https://demo.lukewarlow.dev/web-preferences-api/";
-        sameOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
-        document.body.appendChild(sameOriginIframeSandboxed);
-
-        const sameSiteIframe = document.createElement('iframe');
-        sameSiteIframe.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
-        document.body.appendChild(sameSiteIframe);
-
-        const sameSiteIframeSandboxed = document.createElement('iframe');
-        sameSiteIframeSandboxed.src = "https://altdemo.lukewarlow.dev/web-preferences-api/";
-        sameSiteIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
-        document.body.appendChild(sameSiteIframeSandboxed);
-
-        const crossOriginIframe = document.createElement('iframe');
-        crossOriginIframe.src = "https://demo.warlow.dev/web-preferences-api/";
-        document.body.appendChild(crossOriginIframe);
-
-        const crossOriginIframeSandboxed = document.createElement('iframe');
-        crossOriginIframeSandboxed.src = "https://demo.warlow.dev/web-preferences-api/";
-        crossOriginIframeSandboxed.setAttribute('sandbox', 'allow-scripts');
-        document.body.appendChild(crossOriginIframeSandboxed);
-
-        if (window.FencedFrameConfig && window.HTMLFencedFrameElement) {
-          try {
-            const frameConfig = new FencedFrameConfig("https://demo.warlow.dev/web-preferences-api/");
-            const fencedframe = document.createElement('fencedframe');
-            fencedframe.config = frameConfig;
-            document.body.appendChild(fencedframe);
-          } catch (e) {
-            console.warn(e);
-          }
-        }
-      } else {
-        window.addEventListener('message', e => {
-          console.log(e);
-          console.log(window.location.origin);
-        });
-      }
-      const colorSchemeIsLight = window.matchMedia('(prefers-color-scheme: light)');
-      window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
-      colorSchemeIsLight.onchange = () => {
-        window.colorScheme.innerText = colorSchemeIsLight.matches ? "light" : "dark";
-      };
-      const contrastIsBooleanTrue = window.matchMedia('(prefers-contrast)');
-      const contrastIsMore = window.matchMedia('(prefers-contrast: more)');
-      if (contrastIsBooleanTrue.matches) {
-        window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-      } else {
-        window.contrast.innerText = 'no-preference';
-      }
-      contrastIsBooleanTrue.onchange = () => {
-        if (contrastIsBooleanTrue.matches) {
-          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-        } else {
-          window.contrast.innerText = 'no-preference';
-        }
-      }
-      contrastIsMore.onchange = () => {
-        if (contrastIsBooleanTrue.matches) {
-          window.contrast.innerText = contrastIsMore.matches ? 'more' : 'less';
-        } else {
-          window.contrast.innerText = 'no-preference';
-        }
-      }
-
-      const motionIsReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-      window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
-      motionIsReduce.onchange = () => {
-        window.reducedMotion.innerText = motionIsReduce.matches ? "reduce" : "no-preference";
-      };
-      const transparencyIsReduce = window.matchMedia('(prefers-reduced-transparency: reduce)');
-      window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
-      transparencyIsReduce.onchange = () => {
-        window.reducedTransparency.innerText = transparencyIsReduce.matches ? "reduce" : "no-preference";
-      };
-      const dataIsReduce = window.matchMedia('(prefers-reduced-data: reduce)');
-      window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
-      dataIsReduce.onchange = () => {
-        window.reducedData.innerText = dataIsReduce.matches ? "reduce" : "no-preference";
-      };
 
     </script>
   </body>
